@@ -1,0 +1,159 @@
+{
+  "roomID": "00-00",
+  "roomName": "Forest Clearing",
+  "specialTiles": [
+    {
+      "x": 15,
+      "y": 8,
+      "type": "transition",
+      "destinationRoomID": "01-00"
+    },
+    {
+      "x": 6,
+      "y": 5,
+      "type": "npc",
+      "dialogue": "OldMan-1",
+      "contents": [
+        "1-health_potion"
+      ]
+    },
+    {
+      "x": 5,
+      "y": 8,
+      "type": "chest",
+      "contents": [
+        "1-health_potion"
+      ]
+    },
+    {
+      "x": 5,
+      "y": 1,
+      "type": "battle"
+    },
+    {
+      "x": 0,
+      "y": 9,
+      "type": "terrain"
+    },
+    {
+      "x": 0,
+      "y": 8,
+      "type": "terrain"
+    },
+    {
+      "x": 0,
+      "y": 7,
+      "type": "terrain"
+    },
+    {
+      "x": 0,
+      "y": 5,
+      "type": "terrain"
+    },
+    {
+      "x": 0,
+      "y": 6,
+      "type": "terrain"
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "type": "terrain"
+    },
+    {
+      "x": 0,
+      "y": 3,
+      "type": "terrain"
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "type": "terrain"
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "type": "terrain"
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 4,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 6,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 5,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 7,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 10,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 9,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 8,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 11,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 12,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 13,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 14,
+      "y": 0,
+      "type": "terrain"
+    },
+    {
+      "x": 15,
+      "y": 0,
+      "type": "terrain"
+    }
+  ]
+}
