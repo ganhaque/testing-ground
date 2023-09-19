@@ -1,4 +1,6 @@
 # Classes
+
+
 ```plantuml
 
 !include https://raw.githubusercontent.com/ganhaque/plantuml-theme/main/theme.yuml
@@ -21,7 +23,6 @@ enum Direction {
 }
 
 Coordinate --* Character
-Coordinate --* Object
 
 class Coordinate {
   int x
@@ -46,19 +47,19 @@ class Stats {
 !include https://raw.githubusercontent.com/ganhaque/plantuml-theme/main/theme.yuml
 
 class ChestTile {
+- chestId: string
 - interactable: bool = true
 - blockMovement: bool = true
-- contents: string[] = "1-Health_Pot"
-- dialogueId: string = ""
 }
 
 class NpcTile {
+- npcId: string
 - interactable: bool = true
 - blockMovement: bool = true
-- dialogueId: string = ""
 }
 
 class BattleTile {
+- battleId: string
 - interactable: bool = true
 - blockMovement: bool = true
 }
@@ -72,15 +73,6 @@ class TransitionTile {
 - interactable: bool = false
 - blockMovement: bool = false
 - destinationRoomId: string
-}
-
-enum ObjectType {
-TERRAIN
-TRANSITION_TILE
-CHEST
-NPC
-BATTLE
-PORTAL
 }
 
 ```
@@ -348,4 +340,3 @@ usecase/ "usecase/"
 
 @enduml
 ```
-

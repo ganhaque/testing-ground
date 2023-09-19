@@ -1,9 +1,8 @@
-#Copyright Notice:
-#The files within this zip file are copyrighted by Lazy Foo' Productions (2004-2014)
-#and may not be redistributed without written permission.
+SRCS := $(wildcard src/*.cpp)
 
 #OBJS specifies which files to compile as part of the project
-OBJS = ./room.cpp
+# OBJS = ./main.cpp ./Game.cpp ./Tile.cpp
+OBJS := $(SRCS:.cpp=.o)
 
 #CC specifies which compiler we're using
 CC = g++
@@ -21,3 +20,12 @@ OBJ_NAME = a.out
 #This is the target that compiles our executable
 all : $(OBJS)
 	$(CC) $(OBJS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(OBJ_NAME)
+
+# Rule to compile .cpp files into .o files
+%.o: %.cpp
+	$(CC) $(COMPILER_FLAGS) -c $< -o $@
+
+# Clean rule to remove object files and the executable
+clean:
+	rm -f $(OBJS) $(OBJ_NAME)
+	rm -f $(SRCS:.cpp=.o)
