@@ -18,6 +18,11 @@ Character::Character(int startX, int startY) : x(startX), y(startY), facing(Dire
   frameRects[static_cast<int>(Direction::DOWN)] = { 0, 50.0f, 50.0f, 50.0f };
   frameRects[static_cast<int>(Direction::UP)] = { 0, 100.0f, 50.0f, 50.0f };
   frameRects[static_cast<int>(Direction::RIGHT)] = { 0, 150.0f, 50.0f, 50.0f };
+
+  // frameRects[static_cast<int>(Direction::LEFT)] = { 0, 0, 2*50.0f, 2*50.0f };
+  // frameRects[static_cast<int>(Direction::DOWN)] = { 0, 2*50.0f, 2*50.0f, 2*50.0f };
+  // frameRects[static_cast<int>(Direction::UP)] = { 0, 2*100.0f, 2*50.0f, 2*50.0f };
+  // frameRects[static_cast<int>(Direction::RIGHT)] = { 0, 2*150.0f, 2*50.0f, 2*50.0f };
 }
 
 void Character::move(int newX, int newY) {

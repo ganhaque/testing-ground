@@ -1,15 +1,71 @@
 // Game.cpp
 #include "Game.h"
 #include <iostream>
+#include <fstream>
+#include "StringParser.h"
+#include <json/json.h>
+#include <raylib.h>
 
 Game::Game() {
+  gameState = START_MENU; // Set the initial state to "start"
+
   // Initialize grid (adjust size accordingly)
   for (int x = 0; x < screenWidth / gridSize; x++) {
     for (int y = 0; y < screenHeight / gridSize; y++) {
-      grid[x][y] = (x == 2 && y == 3) ? 1 : 0; // Set an obstacle
+      // grid[x][y] = (x == 2 && y == 3) ? 1 : 0; // Set an obstacle
+      grid[x][y] = 0; // Set all to 0 (walkable)
     }
   }
-  spawnTiles();
+  // spawnTiles();
+
+  // Create a JSON parser
+  Json::Value save;
+  Json::CharReaderBuilder builder;
+  std::string errs;
+
+  // Read the save JSON data
+  std::ifstream jsonFile("./json/save.json");
+
+  if (parseFromStream(builder, jsonFile, &save, &errs)) {
+    // JSON parsing succeeded
+    std::cout << "Parsing succeeded." << std::endl;
+    currentRoomId = save["currentRoomId"].asString();
+    loadRoom(currentRoomId);
+
+    currentRoomId = save["playerX"].asInt();
+
+    // TODO: load completed
+  }
+
+
+
+  std::string input1 = "1-hp_pot";
+  int intValue;
+  std::string stringValue;
+
+  StringParser::ParseString(input1, intValue, stringValue);
+
+  std::cout << "Parsed: int=" << intValue << ", str=" << stringValue << std::endl;
+
+  std::string input2 = "05-06";
+  int firstInt, secondInt;
+
+  StringParser::ParseCoordinate(input2, firstInt, secondInt);
+
+  std::cout << "Parsed ID: int1=" << firstInt << ", int2=" << secondInt << std::endl;
+}
+
+void Game::loadRoom(std::string roomId) {
+  // Create a JSON parser
+  Json::Value root;
+  Json::CharReaderBuilder builder;
+  std::string errs;
+
+  // Read the JSON data from a file
+  std::ifstream jsonFile("00-00.json");
+  if (parseFromStream(builder, jsonFile, &root, &errs)) {
+
+  }
 }
 
 void Game::HandleUserInput() {
@@ -82,6 +138,7 @@ void Game::HandleUserInput() {
 
   if (isValidMove(newX, newY)) {
     player->move(newX, newY);
+    // printf("New player coordinate: %d, %d\n", newX, newY);
     lastMoveTime = currentTime;
   }
 }
@@ -105,35 +162,45 @@ void Game::run() {
   SetTargetFPS(60);
 
   while (!WindowShouldClose()) {
-    HandleUserInput();
-
-    BeginDrawing();
-    // ClearBackground(RAYWHITE);
-    ClearBackground(DARKGRAY);
-
-    // Draw the grid
-    for (int x = 0; x < screenWidth; x += gridSize) {
-      for (int y = 0; y < screenHeight; y += gridSize) {
-        // if (grid[x / gridSize][y / gridSize] == 1) {
-        //   DrawRectangle(x, y, gridSize, gridSize, DARKGRAY);
-        // }
-        // else {
-        DrawRectangleLines(x, y, gridSize, gridSize, DARKGRAY);
-        // }
+    if (gameState == START_MENU) {
+      BeginDrawing();
+      DrawText("Press Space to Continue or something idk", screenWidth / 2 - 50, screenHeight / 2, 20, RAYWHITE);
+      EndDrawing();
+      if (IsKeyPressed(KEY_SPACE)) {
+        gameState = IN_GAME;
       }
     }
+    else if (gameState == IN_GAME) {
+      HandleUserInput();
 
-    // TODO: draw tiles/objects here
-    for (Tile* tile : interactableTiles) {
-      tile->draw(gridSize);
+      BeginDrawing();
+      // ClearBackground(RAYWHITE);
+      ClearBackground(DARKGRAY);
+
+      // Draw the grid
+      for (int x = 0; x < screenWidth; x += gridSize) {
+        for (int y = 0; y < screenHeight; y += gridSize) {
+          // if (grid[x / gridSize][y / gridSize] == 1) {
+          // DrawRectangle(x, y, gridSize, gridSize, DARKGRAY);
+          // }
+          // else {
+          DrawRectangleLines(x, y, gridSize, gridSize, DARKGRAY);
+          // }
+        }
+      }
+
+      // TODO: draw tiles/objects here
+      for (Tile* tile : interactableTiles) {
+        tile->draw(gridSize);
+      }
+
+      // Draw the player character
+      // DrawRectangle(player->x * gridSize, player->y * gridSize, gridSize, gridSize, RED);
+      // DrawTextureRec(player->texture, player->frameRects[static_cast<int>(player->facing)], { player->x * gridSize, player->y * gridSize }, WHITE);
+      DrawTextureRec(player->texture, player->frameRects[static_cast<int>(player->facing)], { static_cast<float>(player->x) * gridSize, static_cast<float>(player->y) * gridSize }, WHITE);
+
+      EndDrawing();
     }
-
-    // Draw the player character
-    // DrawRectangle(player->x * gridSize, player->y * gridSize, gridSize, gridSize, RED);
-    // DrawTextureRec(player->texture, player->frameRects[static_cast<int>(player->facing)], { player->x * gridSize, player->y * gridSize }, WHITE);
-    DrawTextureRec(player->texture, player->frameRects[static_cast<int>(player->facing)], { static_cast<float>(player->x) * gridSize, static_cast<float>(player->y) * gridSize }, WHITE);
-
-    EndDrawing();
   }
 
   for (Tile* tile : interactableTiles) {

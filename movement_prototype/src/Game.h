@@ -6,6 +6,12 @@
 #include "vector"
 #include <memory>
 
+enum GameState {
+  START_MENU,
+  IN_GAME
+};
+
+
 class Game {
   private:
     std::unique_ptr<Character> player; // Use a unique_ptr for deferred initialization
@@ -13,7 +19,12 @@ class Game {
     const int screenWidth = 1600;
     const int screenHeight = 1000;
     const int gridSize = 50;
+
+    GameState gameState;
+
+    std::string currentRoomId;
     std::vector<Tile*> interactableTiles; // Vector to store interactable tiles
+    std::vector<std::string> completed; // Vector to store interactable tiles
 
     // Character player;
 
@@ -24,6 +35,7 @@ class Game {
 
     Game();
 
+    void loadRoom(std::string roomId);
     void HandleUserInput();
     bool isValidMove(int newX, int newY);
     void spawnTiles(); // Function to spawn tiles
