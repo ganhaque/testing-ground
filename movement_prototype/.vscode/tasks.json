@@ -5,20 +5,17 @@
     "tasks": [
         {
             "label": "build debug",
-            "type": "process",
+            "type": "shell",
             "command": "make",
             "args": [
                 "PLATFORM=PLATFORM_DESKTOP",
-                "BUILD_MODE=DEBUG",
-                "PROJECT_NAME=${fileBasenameNoExtension}"
+                "BUILD_MODE=DEBUG"
             ],
             "windows": {
                 "command": "mingw32-make.exe",
                 "args": [
                     "RAYLIB_PATH=C:/raylib/raylib",
-                    "PROJECT_NAME=${fileBasenameNoExtension}",
-                    "BUILD_MODE=DEBUG",
-                    "PROJECT_NAME=${fileBasenameNoExtension}"
+                    "BUILD_MODE=DEBUG"
                 ],
             },
             "osx": {
@@ -34,7 +31,7 @@
                 "isDefault": true
             },
             "problemMatcher": [
-                "$g++"
+                "$gcc"
             ]
         },
         {
@@ -65,7 +62,7 @@
             },
             "group": "build",
             "problemMatcher": [
-                "$g++"
+                "$gcc"
             ]
         }
     ]

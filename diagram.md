@@ -1,20 +1,35 @@
 # Classes
 
+# TODO
+- Maybe separate texture & stuffs into a Sprite2D class?
+- Rework Transition Tile
+  - Change gridSize to +1, +1. The grid has 1 row & 1 column invisible to player
+- Game variable should be initialize via JSON parsing
+- Make a string parser helper classs that separate stuffs by "-"
+  - Inventory items should be in the format "d-item_name"
+  - Room should be in the format "d-d"
+- Maybe: character has an overlay over the tile they are facing
+
+# Character
 
 ```plantuml
-
 !include https://raw.githubusercontent.com/ganhaque/plantuml-theme/main/theme.yuml
+
 class Character {
-- position: Coordinate
+- id: string
+- x: int
+- y: int
 - stats: Stats
 - facing: Direction
+- Texture2D texture
+- Rectangle frameRects[4]
+- currentFrame: int
 
 + Character(int startX, int startY)
 + move(newX: int, newY: int): void
-+ interact(object: Object): void
 }
 
-Character --> Direction
+Character -right-> Direction
 enum Direction {
   UP
   RIGHT
@@ -22,12 +37,6 @@ enum Direction {
   LEFT
 }
 
-Coordinate --* Character
-
-class Coordinate {
-  int x
-  int y
-}
 
 Stats --* Character
 class Stats {
@@ -38,54 +47,42 @@ class Stats {
   int armor
 }
 
+Inventory --* Character
+class Inventory {
+  foods: vector<string>
+  equipments: string[]
+  general: string[]
+  keyItems: string[]
+  questCompleted: string[]
+}
+
 ```
 
-## Objects
-
+# Tiles
 
 ```plantuml
 !include https://raw.githubusercontent.com/ganhaque/plantuml-theme/main/theme.yuml
+class Tile {
+- id: string
+- interactable: bool;
+- blockMovement: bool;
+- x: int;
+- y: int;
 
-class ChestTile {
-- chestId: string
-- interactable: bool = true
-- blockMovement: bool = true
-}
-
-class NpcTile {
-- npcId: string
-- interactable: bool = true
-- blockMovement: bool = true
-}
-
-class BattleTile {
-- battleId: string
-- interactable: bool = true
-- blockMovement: bool = true
-}
-
-class TerrainTile {
-- interactable: bool = false
-- blockMovement: bool = true
+- draw(gridSize: int): void
+- interact(): void
 }
 
 class TransitionTile {
-- interactable: bool = false
-- blockMovement: bool = false
-- destinationRoomId: string
+- x: int;
+- y: int;
+- newRoomId: string
 }
+
 
 ```
 
-```plantuml
-!include https://raw.githubusercontent.com/ganhaque/plantuml-theme/main/theme.yuml
-
-class Room {
-- roomId: string
-- roomName: string
-- objects: Object[]
-}
-```
+# Game
 
 ```plantuml
 !include https://raw.githubusercontent.com/ganhaque/plantuml-theme/main/theme.yuml
@@ -94,42 +91,133 @@ class Game {
 - screenWidth: const int = 1600
 - screenHeight: const int = 1000
 - gridSize: const int = 50
-- grid: int[][]
 - moveSpeed: double = 0.1
 - lastMoveTime: double
-- currentRoom: Room
+- grid: int[][]
+- currentRoomId: string
+- saveInterval: int
+- isLoading: bool
+- completed: string[]
+- interactableTiles: vector<Tile*>
+- transitionTiles: vector<TransitionTile*>
 
-+ handleUserInput(): void
-- handleKeyboardInput(): void
-- handleMouseInput(): void
+- handleUserInput(): void
+' - handleKeyboardInput(): void
+' - handleMouseInput(): void
 - isValidMove(newX: int, newY: int): bool
-+ loadRoom(roomId: string): void
+- loadRoom(roomId: string): void
 + run(): void
 }
 
+```
+
+# Helpers
+```plantuml
+!include https://raw.githubusercontent.com/ganhaque/plantuml-theme/main/theme.yuml
+
+class StringParser {
+  + static std::tuple<int, std::string> ParseString(const std::string& input);
+}
 
 ```
+
+# Example Save Data (save_data.json)
+
+```plantuml
+@startjson
+{
+   "currentRoomId":"05-05",
+   "completed": ["tutorial", "boss_1", "chest_1"],
+   "inventory": ["1-hp_pot", "1-rock"],
+   "playerX": 6,
+   "playerY": 6
+}
+@endjson
+```
+# Example room (05-05.json)
+```plantuml
+@startjson
+{
+  "roomId":"05-05",
+  "specialTiles": [
+    {
+      "id": "chest-1",
+      "x": "3",
+      "y": "3"
+    },
+    {
+      "id": "npc-1",
+      "x": "4",
+      "y": "3"
+    }
+  ]
+}
+@endjson
+```
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 # Functions
 
 ## Game
 
 ```plantuml
-
 !include https://raw.githubusercontent.com/ganhaque/plantuml-theme/main/theme.yuml
 
 package parseRoomJSON(roomId: string) {
 start
-: find {roomId}.json for room;
+: find & load {roomId}.json;
+: currentRoomId = room["roomId].asString();
 
 repeat
-  :long m = std::pow(2, k) - 1;
-  if (faster_sum(m) == 1) then (true)
-    :perfect_counter++;
-    if (perfect_counter == n) then (true)
-      :return m * std::pow(2, k - 1);
-    endif
-  endif
   :k++;
 repeat while (true)
 
