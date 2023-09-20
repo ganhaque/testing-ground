@@ -1,5 +1,6 @@
 // Game.cpp
 #include "Game.h"
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include "StringParser.h"
@@ -18,26 +19,7 @@ Game::Game() {
   }
   // spawnTiles();
 
-  // Create a JSON parser
-  Json::Value save;
-  Json::CharReaderBuilder builder;
-  std::string errs;
-
-  // Read the save JSON data
-  std::ifstream jsonFile("./json/save.json");
-
-  if (parseFromStream(builder, jsonFile, &save, &errs)) {
-    // JSON parsing succeeded
-    std::cout << "Parsing succeeded." << std::endl;
-    currentRoomId = save["currentRoomId"].asString();
-    loadRoom(currentRoomId);
-
-    currentRoomId = save["playerX"].asInt();
-
-    // TODO: load completed
-  }
-
-
+  loadSaveJson("savegame");
 
   std::string input1 = "1-hp_pot";
   int intValue;
@@ -55,6 +37,78 @@ Game::Game() {
   std::cout << "Parsed ID: int1=" << firstInt << ", int2=" << secondInt << std::endl;
 }
 
+void Game::loadSaveJson(const std::string& filename) {
+  const std::string& saveFilePath = "./save/";
+  const std::string& jsonFileType = ".json";
+  const std::string fullFilePath = saveFilePath + filename + jsonFileType;
+  Json::Value root;
+
+  // Read the JSON data from the file
+  std::ifstream inputFile(fullFilePath);
+
+  if (inputFile.is_open()) {
+    // Parse the JSON data
+    Json::CharReaderBuilder reader;
+    std::string parseErrors;
+    Json::parseFromStream(reader, inputFile, &root, &parseErrors);
+
+    if (parseErrors.empty()) {
+      // Deserialize the JSON data into member variables
+      // gameState = (GameState)root.get("gameState", START_MENU).asInt();
+      currentRoomId = root.get("currentRoomId", "").asString();
+      std::cout << "currentRoomId parsed from JSON is: " << currentRoomId << std::endl;
+      // fprintf(stderr, "%s\n", "JSON parsing failed!");
+
+      completed.clear();
+      const Json::Value& completedArray = root["completed"];
+      for (const Json::Value& item : completedArray) {
+        completed.push_back(item.asString());
+      }
+
+      // You can add more deserialization logic for other members here
+
+      inputFile.close();
+    }
+    else {
+      fprintf(stderr, "%s\n", "JSON parsing failed!");
+      inputFile.close();
+      // return false; // Loading failed
+    }
+  }
+  else {
+    fprintf(stderr, "%s\n", "Unable to open file for reading");
+  }
+}
+
+
+void Game::saveToJson(const std::string& filename) {
+  const std::string& saveFilePath = "./save/";
+  const std::string& jsonFileType = ".json";
+  const std::string fullFilePath = saveFilePath + filename + jsonFileType;
+  Json::Value root;
+
+  // Serialize member data to JSON
+  // root["gameState"] = gameState;
+  root["currentRoomId"] = currentRoomId;
+  root["completed"] = Json::Value(Json::arrayValue);
+  for (const std::basic_string<char> &item : completed) {
+    root["completed"].append(item);
+  }
+
+  // Create a JSON writer
+  Json::StreamWriterBuilder writer;
+  std::ofstream outputFile(fullFilePath);
+
+  if (outputFile.is_open()) {
+    // Write JSON to the output file
+    outputFile << Json::writeString(writer, root);
+    outputFile.close();
+  }
+  else {
+    fprintf(stderr, "%s\n", "Unable to open the file for writing");
+  }
+}
+
 void Game::loadRoom(std::string roomId) {
   // Create a JSON parser
   Json::Value root;
@@ -68,36 +122,58 @@ void Game::loadRoom(std::string roomId) {
   }
 }
 
-void Game::HandleUserInput() {
-  if (IsKeyPressed(KEY_SPACE)) {
-    int targetX = player->x;
-    int targetY = player->y;
+void Game::handleUserInput() {
+  int keyPressed = GetKeyPressed();
+  switch (keyPressed) {
+    case KEY_LEFT:
+      player->move(player->x-1, player->y);
+      player->facing = Direction::LEFT;
+      break;
+    case KEY_DOWN:
+      player->move(player->x, player->y+1);
+      player->facing = Direction::DOWN;
+      break;
+    case KEY_UP:
+      player->move(player->x, player->y-1);
+      player->facing = Direction::UP;
+      break;
+    case KEY_RIGHT:
+      player->move(player->x+1, player->y);
+      player->facing = Direction::RIGHT;
+      break;
+    case KEY_S:
+      fprintf(stderr, "%s\n", "saved to savegame.json");
+      saveToJson("savegame");
+      break;
+    case KEY_SPACE:
+      fprintf(stderr, "%s\n", "space was pressed");
+      int targetX = player->x;
+      int targetY = player->y;
 
-    switch (player->facing) {
-      case Direction::UP:
-        targetY--;
-        break;
-      case Direction::DOWN:
-        targetY++;
-        break;
-      case Direction::LEFT:
-        targetX--;
-        break;
-      case Direction::RIGHT:
-        targetX++;
-        break;
-    }
-
-    // Check if the target position is within bounds and if there's an interactable tile at the target position
-    if (targetX >= 0 && targetX < (screenWidth / gridSize) && targetY >= 0 && targetY < (screenHeight / gridSize)) {
+      switch (player->facing) {
+        case Direction::UP:
+          targetY--;
+          break;
+        case Direction::DOWN:
+          targetY++;
+          break;
+        case Direction::LEFT:
+          targetX--;
+          break;
+        case Direction::RIGHT:
+          targetX++;
+          break;
+      }
+      // Check if the target position is within bounds and if there's an interactable tile at the target position
       for (Tile* tile : interactableTiles) {
         if (tile->x == targetX && tile->y == targetY) {
           tile->interact(); // Call the interact method of the tile
           break; // Exit the loop once an interactable tile is found
         }
       }
-    }
+      break;
   }
+
 
   const double currentTime = GetTime();
   const double deltaTime = currentTime - lastMoveTime;
@@ -136,11 +212,12 @@ void Game::HandleUserInput() {
   //     player->frameRects[static_cast<int>(player->facing)].y
   //     );
 
-  if (isValidMove(newX, newY)) {
-    player->move(newX, newY);
-    // printf("New player coordinate: %d, %d\n", newX, newY);
-    lastMoveTime = currentTime;
-  }
+  // if (isValidMove(newX, newY)) {
+  player->move(newX, newY);
+  // printf("New player coordinate: %d, %d\n", newX, newY);
+  lastMoveTime = currentTime;
+  // }
+
 }
 
 bool Game::isValidMove(int newX, int newY) {
@@ -148,6 +225,7 @@ bool Game::isValidMove(int newX, int newY) {
 }
 
 void Game::spawnTiles() {
+  // TODO:
   // Spawn your tiles here
   ChestTile* chestTile = new ChestTile("chest_1", 3, 3);
   interactableTiles.push_back(chestTile);
@@ -171,7 +249,7 @@ void Game::run() {
       }
     }
     else if (gameState == IN_GAME) {
-      HandleUserInput();
+      handleUserInput();
 
       BeginDrawing();
       // ClearBackground(RAYWHITE);
@@ -184,7 +262,8 @@ void Game::run() {
           // DrawRectangle(x, y, gridSize, gridSize, DARKGRAY);
           // }
           // else {
-          DrawRectangleLines(x, y, gridSize, gridSize, DARKGRAY);
+          // DrawRectangleLines(x, y, gridSize, gridSize, DARKGRAY);
+          DrawRectangleLines(x, y, gridSize, gridSize, BLACK);
           // }
         }
       }
@@ -197,8 +276,8 @@ void Game::run() {
       // Draw the player character
       // DrawRectangle(player->x * gridSize, player->y * gridSize, gridSize, gridSize, RED);
       // DrawTextureRec(player->texture, player->frameRects[static_cast<int>(player->facing)], { player->x * gridSize, player->y * gridSize }, WHITE);
-      DrawTextureRec(player->texture, player->frameRects[static_cast<int>(player->facing)], { static_cast<float>(player->x) * gridSize, static_cast<float>(player->y) * gridSize }, WHITE);
 
+      player->draw(gridSize);
       EndDrawing();
     }
   }

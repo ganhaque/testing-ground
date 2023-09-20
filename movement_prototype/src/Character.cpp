@@ -30,6 +30,17 @@ void Character::move(int newX, int newY) {
   y = newY;
 }
 
+void Character::draw(int gridSize) {
+  DrawTextureRec(
+      texture,
+      frameRects[static_cast<int>(facing)],
+      {
+      static_cast<float>(x) * gridSize,
+      static_cast<float>(y) * gridSize
+      },
+      WHITE);
+}
+
 void Character::updateAnimation() {
   if (IsKeyDown(KEY_RIGHT)) {
     facing = Direction::RIGHT;

@@ -19,6 +19,7 @@ class Game {
     const int screenWidth = 1600;
     const int screenHeight = 1000;
     const int gridSize = 50;
+    // const int gridSize = 100;
 
     GameState gameState;
 
@@ -29,16 +30,19 @@ class Game {
     // Character player;
 
     int grid[16*2][10*2];
+    // int grid[16][10];
 
-    double lastMoveTime;
+    double lastMoveTime = 0;
     double moveSpeed = 0.1;
 
     Game();
 
     void loadRoom(std::string roomId);
-    void HandleUserInput();
+    void handleUserInput();
     bool isValidMove(int newX, int newY);
     void spawnTiles(); // Function to spawn tiles
     void run();
-    void Initialize();
+    // void initialize();
+    void saveToJson(const std::string& filename);
+    void loadSaveJson(const std::string& filename);
 };

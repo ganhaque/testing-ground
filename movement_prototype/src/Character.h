@@ -37,5 +37,6 @@ class Character {
     Character(int startX, int startY);
 
     void move(int newX, int newY);
+    void draw(int gridSize);
     void updateAnimation();
 };
