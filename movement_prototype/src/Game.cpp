@@ -7,9 +7,10 @@
 #include "nlohmann/json.hpp"
 #include <raylib.h>
 
-Game::Game() : moveSpeed(0.2) {
+Game::Game() {
   gameState = START_MENU; // Set the initial state to "start"
   printf("moveSpeed in constructor: %f\n", moveSpeed);
+  // printf("moveSpeed in constructor: %f\n", notMoveSpeed);
 
   // Initialize grid (adjust size accordingly)
   for (int x = 0; x < screenWidth / gridSize; x++) {
@@ -132,12 +133,13 @@ void Game::handleUserInput() {
   double currentTime = GetTime();
   double deltaTimeSinceLastMove = currentTime - lastMoveTime;
   if (deltaTimeSinceLastMove < moveSpeed) {
-    fprintf(stderr,"too soon\n");
+    // fprintf(stderr,"too soon\n");
     return; // Too soon for another move
   }
   else {
     // fprintf(stderr, "deltaTimeSinceLastMove: %f\n", deltaTimeSinceLastMove);
-    fprintf(stderr, "moveSpeed: %f\n", moveSpeed);
+    // fprintf(stderr, "moveSpeed: %f\n", moveSpeed);
+    // fprintf(stderr, "notMoveSpeed: %f\n", notMoveSpeed);
     // fprintf(stderr, "Equality: %b\n", deltaTimeSinceLastMove < moveSpeed);
   }
 

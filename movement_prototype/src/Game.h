@@ -20,6 +20,9 @@ class Game {
     const int screenHeight = 1000;
     const int gameHeight = 800;
     const int gridSize = 50;
+
+    const double moveSpeed = 0.1;
+    // const double notMoveSpeed = 0.1;
     // const int gridSize = 100;
 
     GameState gameState;
@@ -35,7 +38,6 @@ class Game {
     // int grid[16][10];
 
     double lastMoveTime;
-    double moveSpeed;
 
     Game();
 
