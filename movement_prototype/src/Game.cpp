@@ -4,11 +4,12 @@
 #include <iostream>
 #include <fstream>
 #include "StringParser.h"
-#include <json/json.h>
+#include "nlohmann/json.hpp"
 #include <raylib.h>
 
-Game::Game() {
+Game::Game() : moveSpeed(0.2) {
   gameState = START_MENU; // Set the initial state to "start"
+  printf("moveSpeed in constructor: %f\n", moveSpeed);
 
   // Initialize grid (adjust size accordingly)
   for (int x = 0; x < screenWidth / gridSize; x++) {
@@ -19,128 +20,146 @@ Game::Game() {
   }
   // spawnTiles();
 
-  loadSaveJson("savegame");
+  // loadSaveJson("savegame");
 
-  std::string input1 = "1-hp_pot";
-  int intValue;
-  std::string stringValue;
-
-  StringParser::ParseString(input1, intValue, stringValue);
-
-  std::cout << "Parsed: int=" << intValue << ", str=" << stringValue << std::endl;
-
-  std::string input2 = "05-06";
-  int firstInt, secondInt;
-
-  StringParser::ParseCoordinate(input2, firstInt, secondInt);
-
-  std::cout << "Parsed ID: int1=" << firstInt << ", int2=" << secondInt << std::endl;
+  // std::string input1 = "1-hp_pot";
+  // int intValue;
+  // std::string stringValue;
+  //
+  // StringParser::ParseString(input1, intValue, stringValue);
+  //
+  // std::cout << "Parsed: int=" << intValue << ", str=" << stringValue << std::endl;
+  //
+  // std::string input2 = "05-06";
+  // int firstInt, secondInt;
+  //
+  // StringParser::ParseCoordinate(input2, firstInt, secondInt);
+  // std::cout << "Parsed ID: int1=" << firstInt << ", int2=" << secondInt << std::endl;
 }
 
 void Game::loadSaveJson(const std::string& filename) {
-  const std::string& saveFilePath = "./save/";
-  const std::string& jsonFileType = ".json";
+  const std::string saveFilePath = "./save/";
+  const std::string jsonFileType = ".json";
   const std::string fullFilePath = saveFilePath + filename + jsonFileType;
-  Json::Value root;
+  nlohmann::json root;
 
   // Read the JSON data from the file
   std::ifstream inputFile(fullFilePath);
 
   if (inputFile.is_open()) {
     // Parse the JSON data
-    Json::CharReaderBuilder reader;
-    std::string parseErrors;
-    Json::parseFromStream(reader, inputFile, &root, &parseErrors);
+    try {
+      inputFile >> root;
 
-    if (parseErrors.empty()) {
       // Deserialize the JSON data into member variables
-      // gameState = (GameState)root.get("gameState", START_MENU).asInt();
-      currentRoomId = root.get("currentRoomId", "").asString();
+      // gameState = static_cast<GameState>(root.value("gameState", START_MENU));
+      currentRoomId = root.value("currentRoomId", "");
       std::cout << "currentRoomId parsed from JSON is: " << currentRoomId << std::endl;
-      // fprintf(stderr, "%s\n", "JSON parsing failed!");
 
       completed.clear();
-      const Json::Value& completedArray = root["completed"];
-      for (const Json::Value& item : completedArray) {
-        completed.push_back(item.asString());
+      for (const auto& item : root["completed"]) {
+        completed.push_back(item.get<std::string>());
       }
 
       // You can add more deserialization logic for other members here
-
       inputFile.close();
     }
-    else {
-      fprintf(stderr, "%s\n", "JSON parsing failed!");
+    catch (const std::exception& e) {
+      fprintf(stderr, "JSON parsing failed: %s\n", e.what());
       inputFile.close();
       // return false; // Loading failed
     }
   }
   else {
-    fprintf(stderr, "%s\n", "Unable to open file for reading");
+    fprintf(stderr, "Unable to open file for reading\n");
   }
 }
 
-
 void Game::saveToJson(const std::string& filename) {
-  const std::string& saveFilePath = "./save/";
-  const std::string& jsonFileType = ".json";
+  const std::string saveFilePath = "./save/";
+  const std::string jsonFileType = ".json";
   const std::string fullFilePath = saveFilePath + filename + jsonFileType;
-  Json::Value root;
+  nlohmann::json root;
 
   // Serialize member data to JSON
   // root["gameState"] = gameState;
   root["currentRoomId"] = currentRoomId;
-  root["completed"] = Json::Value(Json::arrayValue);
-  for (const std::basic_string<char> &item : completed) {
-    root["completed"].append(item);
+  root["completed"] = nlohmann::json::array();
+
+  for (const std::string& item : completed) {
+    root["completed"].push_back(item);
   }
 
   // Create a JSON writer
-  Json::StreamWriterBuilder writer;
   std::ofstream outputFile(fullFilePath);
 
   if (outputFile.is_open()) {
     // Write JSON to the output file
-    outputFile << Json::writeString(writer, root);
+    outputFile << root.dump(4); // Pretty print with 4 spaces
     outputFile.close();
   }
   else {
-    fprintf(stderr, "%s\n", "Unable to open the file for writing");
+    fprintf(stderr, "Unable to open the file for writing\n");
   }
 }
 
 void Game::loadRoom(std::string roomId) {
-  // Create a JSON parser
-  Json::Value root;
-  Json::CharReaderBuilder builder;
-  std::string errs;
+  const std::string saveFilePath = "./save/";
+  const std::string jsonFileType = ".json";
+  const std::string fullFilePath = saveFilePath + roomId + jsonFileType;
+  nlohmann::json root;
+  std::ifstream jsonFile(fullFilePath);
 
-  // Read the JSON data from a file
-  std::ifstream jsonFile("00-00.json");
-  if (parseFromStream(builder, jsonFile, &root, &errs)) {
-
+  if (jsonFile.is_open()) {
+    try {
+      jsonFile >> root;
+      // Parse transition tiles
+      for (const auto& transitionData : root["transitionTiles"]) {
+        int tileX = transitionData["x"];
+        int tileY = transitionData["y"];
+        std::string destinationRoomId = transitionData["destinationRoomId"];
+        TransitionTile transitionTile(tileX, tileY, destinationRoomId);
+        transitionTiles.push_back(transitionTile);
+      }
+    }
+    catch (const std::exception& e) {
+      fprintf(stderr, "JSON parsing failed: %s\n", e.what());
+    }
   }
 }
 
 void Game::handleUserInput() {
+  double currentTime = GetTime();
+  double deltaTimeSinceLastMove = currentTime - lastMoveTime;
+  if (deltaTimeSinceLastMove < moveSpeed) {
+    fprintf(stderr,"too soon\n");
+    return; // Too soon for another move
+  }
+  else {
+    // fprintf(stderr, "deltaTimeSinceLastMove: %f\n", deltaTimeSinceLastMove);
+    fprintf(stderr, "moveSpeed: %f\n", moveSpeed);
+    // fprintf(stderr, "Equality: %b\n", deltaTimeSinceLastMove < moveSpeed);
+  }
+
+
   int keyPressed = GetKeyPressed();
   switch (keyPressed) {
-    case KEY_LEFT:
-      player->move(player->x-1, player->y);
-      player->facing = Direction::LEFT;
-      break;
-    case KEY_DOWN:
-      player->move(player->x, player->y+1);
-      player->facing = Direction::DOWN;
-      break;
-    case KEY_UP:
-      player->move(player->x, player->y-1);
-      player->facing = Direction::UP;
-      break;
-    case KEY_RIGHT:
-      player->move(player->x+1, player->y);
-      player->facing = Direction::RIGHT;
-      break;
+    // case KEY_LEFT:
+    //   player->move(player->x-1, player->y);
+    //   player->facing = Direction::LEFT;
+    //   break;
+    // case KEY_DOWN:
+    //   player->move(player->x, player->y+1);
+    //   player->facing = Direction::DOWN;
+    //   break;
+    // case KEY_UP:
+    //   player->move(player->x, player->y-1);
+    //   player->facing = Direction::UP;
+    //   break;
+    // case KEY_RIGHT:
+    //   player->move(player->x+1, player->y);
+    // player->facing = Direction::RIGHT;
+    //   break;
     case KEY_S:
       fprintf(stderr, "%s\n", "saved to savegame.json");
       saveToJson("savegame");
@@ -165,22 +184,15 @@ void Game::handleUserInput() {
           break;
       }
       // Check if the target position is within bounds and if there's an interactable tile at the target position
-      for (Tile* tile : interactableTiles) {
-        if (tile->x == targetX && tile->y == targetY) {
-          tile->interact(); // Call the interact method of the tile
+      for (Tile tile : interactableTiles) {
+        if (tile.x == targetX && tile.y == targetY) {
+          tile.interact(); // Call the interact method of the tile
           break; // Exit the loop once an interactable tile is found
         }
       }
       break;
   }
 
-
-  const double currentTime = GetTime();
-  const double deltaTime = currentTime - lastMoveTime;
-
-  if (deltaTime < moveSpeed) {
-    return; // Too soon for another move
-  }
 
   // player->updateAnimation();
 
@@ -190,34 +202,46 @@ void Game::handleUserInput() {
   if (IsKeyDown(KEY_RIGHT)) {
     player->facing = Direction::RIGHT;
     newX++;
-    player->currentFrame = (player->currentFrame + 1) % 4; // Cycle through the frames
   }
   else if (IsKeyDown(KEY_LEFT)) {
     player->facing = Direction::LEFT;
     newX--;
-    player->currentFrame = (player->currentFrame + 1) % 4; // Cycle through the frames
   }
   else if (IsKeyDown(KEY_DOWN)) {
     player->facing = Direction::DOWN;
     newY++;
-    player->currentFrame = (player->currentFrame + 1) % 4; // Cycle through the frames
   }
   else if (IsKeyDown(KEY_UP)) {
     player->facing = Direction::UP;
     newY--;
-    player->currentFrame = (player->currentFrame + 1) % 4; // Cycle through the frames
   }
-  // printf("Current Frame: X=%f, Y=%f\n",
-  //     player->frameRects[static_cast<int>(player->facing)].x,
-  //     player->frameRects[static_cast<int>(player->facing)].y
-  //     );
 
-  // if (isValidMove(newX, newY)) {
-  player->move(newX, newY);
-  // printf("New player coordinate: %d, %d\n", newX, newY);
-  lastMoveTime = currentTime;
-  // }
+  // no movement
+  if (newX == player->x && newY == player->y) return;
 
+  // Check if the new position is out of bounds
+  if (
+      newX < 0 ||
+      newX >= (screenWidth / gridSize) ||
+      newY < 0 ||
+      newY >= (gameHeight / gridSize)
+     ) {
+    fprintf(stderr, "out of bound: %d, %d\n", newX, newY);
+    // Check if there's a transition tile in the direction the player is moving
+    // for (const TransitionTile& tile : transitionTiles) {
+    //   if ((tile.x == newX && tile.y == newY) && tile.destinationRoomId != "") {
+    //     // Load the destination room based on the transition tile's destinationRoomId
+    //     loadRoom(tile.destinationRoomId);
+    //     break;
+    //   }
+    // }
+    return; // Player moved to a new room, no need to continue with the current input
+  }
+  else {
+    player->move(newX, newY);
+    lastMoveTime = currentTime;
+    fprintf(stderr, "lastMoveTime is %f\n", lastMoveTime);
+  }
 }
 
 bool Game::isValidMove(int newX, int newY) {
@@ -227,8 +251,8 @@ bool Game::isValidMove(int newX, int newY) {
 void Game::spawnTiles() {
   // TODO:
   // Spawn your tiles here
-  ChestTile* chestTile = new ChestTile("chest_1", 3, 3);
-  interactableTiles.push_back(chestTile);
+  // ChestTile* chestTile = new ChestTile("chest_1", 3, 3);
+  // interactableTiles.push_back(chestTile);
 }
 
 void Game::run() {
@@ -257,36 +281,34 @@ void Game::run() {
 
       // Draw the grid
       for (int x = 0; x < screenWidth; x += gridSize) {
-        for (int y = 0; y < screenHeight; y += gridSize) {
-          // if (grid[x / gridSize][y / gridSize] == 1) {
-          // DrawRectangle(x, y, gridSize, gridSize, DARKGRAY);
-          // }
-          // else {
-          // DrawRectangleLines(x, y, gridSize, gridSize, DARKGRAY);
-          DrawRectangleLines(x, y, gridSize, gridSize, BLACK);
-          // }
+        for (int y = 0; y < gameHeight; y += gridSize) {
+          if (grid[x / gridSize][y / gridSize] == 1) {
+            DrawRectangle(x, y, gridSize, gridSize, DARKGRAY);
+          }
+          else {
+            // DrawRectangleLines(x, y, gridSize, gridSize, DARKGRAY);
+            DrawRectangleLines(x, y, gridSize, gridSize, BLACK);
+          }
         }
       }
 
-      // TODO: draw tiles/objects here
-      for (Tile* tile : interactableTiles) {
-        tile->draw(gridSize);
+      // TODO: implement draw for tiles object
+      for (Tile tile : interactableTiles) {
+        tile.draw(gridSize);
       }
 
       // Draw the player character
-      // DrawRectangle(player->x * gridSize, player->y * gridSize, gridSize, gridSize, RED);
-      // DrawTextureRec(player->texture, player->frameRects[static_cast<int>(player->facing)], { player->x * gridSize, player->y * gridSize }, WHITE);
-
       player->draw(gridSize);
       EndDrawing();
     }
   }
 
-  for (Tile* tile : interactableTiles) {
-    delete tile;
-  }
+  // for (Tile tile : interactableTiles) {
+  // delete tile;
+  // }
 
   UnloadTexture(player->texture);
 
   CloseWindow();
 }
+

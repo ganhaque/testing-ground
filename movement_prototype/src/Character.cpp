@@ -41,22 +41,22 @@ void Character::draw(int gridSize) {
       WHITE);
 }
 
-void Character::updateAnimation() {
-  if (IsKeyDown(KEY_RIGHT)) {
-    facing = Direction::RIGHT;
-  }
-  else if (IsKeyDown(KEY_LEFT)) {
-    facing = Direction::LEFT;
-  }
-  else if (IsKeyDown(KEY_DOWN)) {
-    facing = Direction::DOWN;
-  }
-  else if (IsKeyDown(KEY_UP)) {
-    facing = Direction::UP;
-  }
-
-  // Cycle through the frames only if any movement key is pressed
-  if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_UP)) {
-    currentFrame = (currentFrame + 1) % 4;
-  }
-}
+// void Character::updateAnimation() {
+//   if (IsKeyDown(KEY_RIGHT)) {
+//     facing = Direction::RIGHT;
+//   }
+//   else if (IsKeyDown(KEY_LEFT)) {
+//     facing = Direction::LEFT;
+//   }
+//   else if (IsKeyDown(KEY_DOWN)) {
+//     facing = Direction::DOWN;
+//   }
+//   else if (IsKeyDown(KEY_UP)) {
+//     facing = Direction::UP;
+//   }
+//
+//   // Cycle through the frames only if any movement key is pressed
+//   if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_UP)) {
+//     currentFrame = (currentFrame + 1) % 4;
+//   }
+// }

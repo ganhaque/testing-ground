@@ -8,7 +8,7 @@
 #include "Character.h"
 
 class Tile {
-public:
+  public:
     std::string id;
     bool interactable;
     bool blockMovement;
@@ -21,43 +21,16 @@ public:
     void draw(int gridSize);
 };
 
-class ChestTile : public Tile {
-public:
-    ChestTile(const std::string& id, int x, int y);
-
-    void open();
-    void draw(int gridSize);
-    void interact(char playerDirection);
-};
-
-class NpcTile : public Tile {
-public:
-    NpcTile(const std::string& id, int x, int y);
-
-    void talk();
-};
-
-class BattleTile : public Tile {
-public:
-    BattleTile(const std::string& id, int x, int y);
-
-    void startBattle();
-};
-
-class TerrainTile : public Tile {
-public:
-    TerrainTile(const std::string& id, int x, int y);
-};
-
-class TransitionTile : public Tile {
-private:
+class TransitionTile {
+  public:
+    int x, y;
     std::string destinationRoomId;
 
-public:
-    TransitionTile(const std::string& id, const std::string& destinationRoomId, int x, int y);
+    TransitionTile(
+      int x,
+      int y,
+      const std::string& destinationRoomId
+    ) : x(x), y(y), destinationRoomId(destinationRoomId) {}
 
-    void enter();
+    // You can add more methods and properties if needed
 };
-
-// #endif // TILE_H
-

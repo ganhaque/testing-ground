@@ -11,5 +11,9 @@
       "x": "4",
       "y": "3"
     }
+  ],
+  "transitionTiles": [
+    { "x": 5, "y": 6, "destinationRoomId": "05-07" },
+    { "x": 8, "y": 3, "destinationRoomId": "06-01" }
   ]
 }

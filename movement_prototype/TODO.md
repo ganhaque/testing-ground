@@ -1,5 +1,7 @@
 # TODO
 
 - Rework grid
-- Load save json
-- Replace isKeyPressed with GetKeyPressed
+- Rework Tile
+- Sprite2D
+<!-- - Load save json -->
+<!-- - Replace isKeyPressed with GetKeyPressed -->

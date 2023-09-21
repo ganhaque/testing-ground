@@ -18,26 +18,29 @@ class Game {
   public:
     const int screenWidth = 1600;
     const int screenHeight = 1000;
+    const int gameHeight = 800;
     const int gridSize = 50;
     // const int gridSize = 100;
 
     GameState gameState;
 
     std::string currentRoomId;
-    std::vector<Tile*> interactableTiles; // Vector to store interactable tiles
+    std::vector<Tile> interactableTiles; // Vector to store interactable tiles
+    std::vector<TransitionTile> transitionTiles;
     std::vector<std::string> completed; // Vector to store interactable tiles
 
     // Character player;
 
-    int grid[16*2][10*2];
+    int grid[16*2][8*2];
     // int grid[16][10];
 
-    double lastMoveTime = 0;
-    double moveSpeed = 0.1;
+    double lastMoveTime;
+    double moveSpeed;
 
     Game();
 
     void loadRoom(std::string roomId);
+    void extracted();
     void handleUserInput();
     bool isValidMove(int newX, int newY);
     void spawnTiles(); // Function to spawn tiles
