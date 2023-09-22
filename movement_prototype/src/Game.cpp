@@ -9,8 +9,6 @@
 
 Game::Game() {
   gameState = START_MENU; // Set the initial state to "start"
-  printf("moveSpeed in constructor: %f\n", moveSpeed);
-  // printf("moveSpeed in constructor: %f\n", notMoveSpeed);
 
   // Initialize grid (adjust size accordingly)
   for (int x = 0; x < screenWidth / gridSize; x++) {
@@ -21,8 +19,9 @@ Game::Game() {
   }
   // spawnTiles();
 
-  // loadSaveJson("savegame");
+  loadSaveJson("savegame");
 
+  // Test out the StringParser class
   // std::string input1 = "1-hp_pot";
   // int intValue;
   // std::string stringValue;
@@ -105,7 +104,7 @@ void Game::saveToJson(const std::string& filename) {
 }
 
 void Game::loadRoom(std::string roomId) {
-  const std::string saveFilePath = "./save/";
+  const std::string saveFilePath = "./src/json/room/";
   const std::string jsonFileType = ".json";
   const std::string fullFilePath = saveFilePath + roomId + jsonFileType;
   nlohmann::json root;
@@ -136,32 +135,27 @@ void Game::handleUserInput() {
     // fprintf(stderr,"too soon\n");
     return; // Too soon for another move
   }
-  else {
-    // fprintf(stderr, "deltaTimeSinceLastMove: %f\n", deltaTimeSinceLastMove);
-    // fprintf(stderr, "moveSpeed: %f\n", moveSpeed);
-    // fprintf(stderr, "notMoveSpeed: %f\n", notMoveSpeed);
-    // fprintf(stderr, "Equality: %b\n", deltaTimeSinceLastMove < moveSpeed);
-  }
 
 
   int keyPressed = GetKeyPressed();
   switch (keyPressed) {
-    // case KEY_LEFT:
-    //   player->move(player->x-1, player->y);
-    //   player->facing = Direction::LEFT;
-    //   break;
-    // case KEY_DOWN:
-    //   player->move(player->x, player->y+1);
-    //   player->facing = Direction::DOWN;
-    //   break;
-    // case KEY_UP:
-    //   player->move(player->x, player->y-1);
-    //   player->facing = Direction::UP;
-    //   break;
-    // case KEY_RIGHT:
-    //   player->move(player->x+1, player->y);
-    // player->facing = Direction::RIGHT;
-    //   break;
+    // Detect when movement key is pushed to smooth out the movement
+    case KEY_LEFT:
+      player->move(player->x-1, player->y);
+      player->facing = Direction::LEFT;
+      break;
+    case KEY_DOWN:
+      player->move(player->x, player->y+1);
+      player->facing = Direction::DOWN;
+      break;
+    case KEY_UP:
+      player->move(player->x, player->y-1);
+      player->facing = Direction::UP;
+      break;
+    case KEY_RIGHT:
+      player->move(player->x+1, player->y);
+    player->facing = Direction::RIGHT;
+      break;
     case KEY_S:
       fprintf(stderr, "%s\n", "saved to savegame.json");
       saveToJson("savegame");
@@ -242,7 +236,7 @@ void Game::handleUserInput() {
   else {
     player->move(newX, newY);
     lastMoveTime = currentTime;
-    fprintf(stderr, "lastMoveTime is %f\n", lastMoveTime);
+    // fprintf(stderr, "lastMoveTime is %f\n", lastMoveTime);
   }
 }
 
@@ -251,8 +245,7 @@ bool Game::isValidMove(int newX, int newY) {
 }
 
 void Game::spawnTiles() {
-  // TODO:
-  // Spawn your tiles here
+  // TODO: Spawn your tiles here
   // ChestTile* chestTile = new ChestTile("chest_1", 3, 3);
   // interactableTiles.push_back(chestTile);
 }

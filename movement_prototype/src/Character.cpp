@@ -9,11 +9,6 @@ Character::Character(int startX, int startY) : x(startX), y(startY), facing(Dire
   // Load the sprite sheet texture (adjust the path accordingly)
   texture = LoadTexture("./assets/Sample.png");
 
-  // Set up source rectangles for each animation frame
-  // for (int i = 0; i < 4; i++) {
-  //   frameRects[i] = { 0, i * 50.0f, 50.0f, 50.0f };
-  //   // frameRects[i] = { i * 50.0f, 0, 50.0f, 50.0f };
-  // }
   frameRects[static_cast<int>(Direction::LEFT)] = { 0, 0, 50.0f, 50.0f };
   frameRects[static_cast<int>(Direction::DOWN)] = { 0, 50.0f, 50.0f, 50.0f };
   frameRects[static_cast<int>(Direction::UP)] = { 0, 100.0f, 50.0f, 50.0f };
