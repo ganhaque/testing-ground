@@ -1,6 +1,7 @@
 #include "Exploration.h"
 #include <cstdio>
 #include <raylib.h>
+#include "../../external-libs/nlohmann/json.hpp"
 
 void Exploration::processInput(Game& game) {
   double currentTime = GetTime();
@@ -337,9 +338,53 @@ void Exploration::render(Game& game) {
   EndDrawing();
 }
 
+void Exploration::loadRoom(const std::string& roomId) {
+  const std::string saveFilePath = "./json/room/";
+  const std::string jsonFileType = ".json";
+  const std::string fullFilePath = saveFilePath + roomId + jsonFileType;
+  nlohmann::json root;
+  std::ifstream jsonFile(fullFilePath);
+
+  if (jsonFile.is_open()) {
+    try {
+      jsonFile >> root;
+
+      // TODO: rename this
+      std::string roomFilePath = "./assets/room/" + roomId;
+      background = LoadTexture((roomFilePath + "-bg.png").c_str());
+
+      // TODO: this part is also WIP, more work need to be done here
+      // TODO: when parsing room Tile,
+      // if Tile.isBlockMovement == true then set grid[tileX][tileY] = 1
+
+      // Parse transition tiles
+      for (const auto& transitionData : root["transitionTiles"]) {
+        int tileX = transitionData["x"];
+        int tileY = transitionData["y"];
+        int enterX = transitionData["enterX"];
+        int enterY = transitionData["enterY"];
+        std::string destinationRoomId = transitionData["destinationRoomId"];
+        // TODO: create new TransitionTile & push into the transitionTiles vector
+        // TransitionTile transitionTile(tileX, tileY, destinationRoomId);
+        // transitionTiles.push_back(transitionTile);
+      }
+    }
+    catch (const std::exception& e) {
+      fprintf(stderr, "JSON parsing failed: %s\n", e.what());
+    }
+  }
+}
+
+
 void Exploration::update(Game& game) {}
 void Exploration::initialize() {}
 void Exploration::exit() {}
+
+Exploration::Exploration(
+    std::string roomId
+    ) {
+  loadRoom(roomId);
+}
 
 Exploration::~Exploration() {
   return;

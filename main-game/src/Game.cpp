@@ -1,12 +1,5 @@
 // Game.cpp
 #include "Game.h"
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <queue>
-#include <raylib.h>
-#include "nlohmann/json.hpp"
-#include "MainMenu.h"
 
 Game::Game() {
   // Initialize grid (adjust size accordingly)
@@ -56,34 +49,23 @@ void Game::initialize() {
 // }
 
 void Game::changeState(std::string state) {
-  // if (currentState != nullptr) {
-  //   currentState->exit();
-  //   delete currentState; // This will call the destructor of the derived class.
-  //   currentState = nullptr; // Set to nullptr to avoid using a dangling pointer.
-  // }
+  GameState* newState;
+
   if (state == "mainMenu") {
-    MainMenu* newState = new MainMenu();
-    currentState->exit();
-    delete currentState;
-    currentState = newState;
-    currentState->initialize();
+    newState = new MainMenu();
   }
   else if (state == "exploration") {
     loadSave("savedata-01");
-    Exploration* newState = new Exploration();
-    currentState->exit();
-    delete currentState;
-    currentState = newState;
-    currentState->initialize();
-
+    newState = new Exploration(currentRoomId);
   }
   else if (state == "combat") {
-    Combat* newState = new Combat();
-    currentState->exit();
-    delete currentState;
-    currentState = newState;
-    currentState->initialize();
+    newState = new Combat();
   }
+
+  currentState->exit();
+  delete currentState;
+  currentState = newState;
+  currentState->initialize();
 }
 
 void Game::renderDialog() {
@@ -136,7 +118,7 @@ void Game::loadSave(const std::string& filename) {
       // TODO: this part is WIP, more work need to be done here
       // Deserialize the JSON data into member variables
       currentRoomId = root.value("currentRoomId", "");
-      loadRoom(currentRoomId);
+      // loadRoom(currentRoomId);
       // const std::string roomFilePath = "./assets/room/";
       std::string roomFilePath = "./assets/room/" + currentRoomId;
       // overworldBg = LoadTexture((roomFilePath + "-bg.png").c_str());
@@ -171,38 +153,6 @@ void Game::loadSave(const std::string& filename) {
   }
   else {
     fprintf(stderr, "Unable to open file for reading\n");
-  }
-}
-//
-void Game::loadRoom(const std::string& roomId) {
-  const std::string saveFilePath = "./json/room/";
-  const std::string jsonFileType = ".json";
-  const std::string fullFilePath = saveFilePath + roomId + jsonFileType;
-  nlohmann::json root;
-  std::ifstream jsonFile(fullFilePath);
-
-  if (jsonFile.is_open()) {
-    try {
-      jsonFile >> root;
-      // TODO: this part is also WIP, more work need to be done here
-      // TODO: when parsing room Tile,
-      // if Tile.isBlockMovement == true then set grid[tileX][tileY] = 1
-
-      // Parse transition tiles
-      for (const auto& transitionData : root["transitionTiles"]) {
-        int tileX = transitionData["x"];
-        int tileY = transitionData["y"];
-        int enterX = transitionData["enterX"];
-        int enterY = transitionData["enterY"];
-        std::string destinationRoomId = transitionData["destinationRoomId"];
-        // TODO: create new TransitionTile & push into the transitionTiles vector
-        // TransitionTile transitionTile(tileX, tileY, destinationRoomId);
-        // transitionTiles.push_back(transitionTile);
-      }
-    }
-    catch (const std::exception& e) {
-      fprintf(stderr, "JSON parsing failed: %s\n", e.what());
-    }
   }
 }
 

@@ -1,6 +1,5 @@
 // Game.h
 #pragma once
-
 // #include "GameStates.h"
 
 #include "Combat/Unit.h"
@@ -12,16 +11,20 @@
 #include "Helper.h"
 #include <algorithm>
 #include <memory>
+#include <cstdio>
+#include <iostream>
+#include <fstream>
 #include <queue>
 #include <random>
 #include <string_view>
 #include <string>
 // #include "enums.h"
+#include "../external-libs/nlohmann/json.hpp"
 
 #include "GameState.h"
 #include "Exploration/Exploration.h"
 #include "Combat/Combat.h"
-#include "MainMenu.h"
+#include "MainMenu/MainMenu.h"
 
 class GameState;
 
@@ -80,7 +83,7 @@ class Game {
 
     // NOTE: save to autosave.json whenever combat-> overworld or move to new room
     void loadSave(const std::string& filename);
-    void loadRoom(const std::string& roomId);
+    // void loadRoom(const std::string& roomId);
     void saveSave(const std::string& filename);
     // trigger when interact with a tile
     void loadTile(const std::string& tileId);

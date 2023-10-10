@@ -1,4 +1,9 @@
-SRCS := $(wildcard src/*.cpp)
+# List of source file directories
+SRC_DIRS := src src/Exploration src/Combat src/MainMenu
+
+# Use wildcard to find all .cpp files in the specified directories
+SRCS := $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
+# SRCS := $(wildcard src/*.cpp)
 
 #OBJS specifies which files to compile as part of the project
 # OBJS = ./main.cpp ./Game.cpp ./Tile.cpp

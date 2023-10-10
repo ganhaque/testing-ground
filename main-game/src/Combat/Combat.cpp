@@ -57,7 +57,17 @@ void Combat::startRound() {
 void Combat::update(Game& game) {
 }
 
-void Combat::initialize() {}
+void Combat::initialize() {
+  currentRound = 0;
+  units = {};
+  units.push_back(Unit("unit1", 1, 1, 1));
+  units.push_back(Unit("unit2", 1, 1, 3));
+  units.push_back(Unit("unit3", 1, 1, 7));
+  std::sort(units.begin(), units.end(), [](const Unit& a, const Unit& b) {
+      return a.initiative > b.initiative;
+      });
+}
+
 void Combat::exit() {}
 
 Combat::~Combat() {

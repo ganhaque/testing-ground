@@ -2,9 +2,7 @@
 #pragma once
 
 #include <string.h>
-#include <string>
 #include "../GameState.h"
-#include <queue>
 #include "Room.h"
 
 #include "../Game.h"
@@ -13,6 +11,7 @@
 
 class Exploration : public GameState {
   public:
+    Exploration(std::string roomId); // destructor
     ~Exploration() override; // destructor
 
     void processInput(Game& game) override;
@@ -30,6 +29,8 @@ class Exploration : public GameState {
     Room currentRoom;
 
     Texture2D background;
+
+    void loadRoom(const std::string& roomId);
 
     // Helpers
     std::string inputHelper(std::string facing);

@@ -4,6 +4,46 @@
 # Game
 
 ```plantuml
+!include https://raw.githubusercontent.com/ganhaque/plantuml-theme/main/theme.yuml
+class Game {
+currentState: GameState*
+...
+
++ run(): void
++ processInput(): void;
++ update(): void;
++ render(): void;
+
++ changeState(newState): void;
+}
+
+class GameState {
++ processInput(): void;
++ update(): void;
++ render(): void;
+}
+
+class Exploration {
++ processInput(): void;
++ update(): void;
++ render(): void;
+}
+class Combat {
++ processInput(): void;
++ update(): void;
++ render(): void;
+}
+class MainMenu {
++ processInput(): void;
++ update(): void;
++ render(): void;
+}
+```
+
+---
+
+
+```plantuml
 !define Component Component
 !define Interface Interface
 
