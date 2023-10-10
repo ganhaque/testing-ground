@@ -1,0 +1,36 @@
+{
+  "roomId":"05-06",
+  "tiles": [
+    {
+      "id": "chest-001",
+      "x": "3",
+      "y": "3"
+    },
+    {
+      "id": "npc-001",
+      "x": "4",
+      "y": "3"
+    },
+    {
+      "id": "combat-001",
+      "x": "4",
+      "y": "3"
+    }
+  ],
+  "transitionTiles": [
+    {
+      "x": 6,
+      "y": 11,
+      "enterX": 6,
+      "enterY": 0,
+      "destinationRoomId": "05-07"
+    },
+    {
+      "x": 19,
+      "y": 6,
+      "enterX": 0,
+      "enterY": 6,
+      "destinationRoomId": "06-05"
+    }
+  ]
+}
