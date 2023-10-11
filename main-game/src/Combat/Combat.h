@@ -1,4 +1,4 @@
-// Exploration.h
+// Combat.h
 #pragma once
 
 #include <string.h>
@@ -14,14 +14,12 @@
 class Combat : public GameState {
 
   public:
+    Combat(); // destructor
     ~Combat() override; // destructor
 
     void processInput(Game& game) override;
     void update(Game& game) override;
     void render(Game& game) override;
-
-    void initialize() override;
-    void exit() override;
 
     Room currentRoom;
 

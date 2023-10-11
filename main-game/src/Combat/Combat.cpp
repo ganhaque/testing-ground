@@ -12,6 +12,10 @@ void Combat::processInput(Game& game) {
   // TODO:
   int keyPressed = GetKeyPressed();
   switch (keyPressed) {
+    case KEY_C:
+      fprintf(stderr, "%s\n", "c was pressed");
+      game.changeState("world");
+      break;
     case KEY_P:
       fprintf(stderr, "%s\n", "p was pressed");
       if (currentUnitIndex < units.size()) {
@@ -57,7 +61,7 @@ void Combat::startRound() {
 void Combat::update(Game& game) {
 }
 
-void Combat::initialize() {
+Combat::Combat() {
   currentRound = 0;
   units = {};
   units.push_back(Unit("unit1", 1, 1, 1));
@@ -67,8 +71,6 @@ void Combat::initialize() {
       return a.initiative > b.initiative;
       });
 }
-
-void Combat::exit() {}
 
 Combat::~Combat() {
   return;

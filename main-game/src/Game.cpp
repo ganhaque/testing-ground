@@ -1,18 +1,34 @@
 // Game.cpp
 #include "Game.h"
+#include <cstdio>
 
 Game::Game() {
-  // Initialize grid (adjust size accordingly)
-  initialize();
-  resetGrid();
+  InitWindow(settings.screenWidth, settings.screenHeight, "Project: Fox");
+  // SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
+  SetTargetFPS(60);
+
+  // IMPORTANT: Any texture loading have to go after InitWindow
+
+  // settings.settings.screenWidth = 1920 / 2;
+  // settings.settings.screenHeight = 1080 / 2;
+  world = new World(currentRoomId);
+
+  // set initinal game state
+  GameState* newState = new MainMenu();
+  // GameState* newState = world;
+  // GameState* newState = new Combat();
+  currentState = newState;
+}
+
+Game::~Game() {
+  delete currentState;
+  delete world;
+
+  CloseWindow();
 }
 
 
 void Game::run() {
-  // SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
-  InitWindow(screenWidth, screenHeight, "Game Title");
-  SetTargetFPS(60);
-
   while (!WindowShouldClose()) {
     if (currentState != nullptr) {
       currentState->processInput(*this);
@@ -20,72 +36,63 @@ void Game::run() {
       currentState->render(*this);
     }
   }
-
-  // TODO: unload stuffs when game about to close to prevent memory leak
-  // UnloadTexture(player->texture);
-
-  CloseWindow();
 }
 
-
-void Game::initialize() {
-  // MainMenu* mainMenuState = new MainMenu();
-  // changeState(mainMenuState);
-  // changeState("mainMenu");
-  MainMenu* newState = new MainMenu();
-  currentState = newState;
-
-
-  player = new Player(
-      "player-01",
-      playerX,
-      playerY,
-      playerFacing
-      );
-  entities.push_back(player);
-}
-
-// void Game::changeState(GameState* newState) {
-// }
-
+// TODO: FIX THIS!!!!!!
+// NOTE: This is very very bad code (it work tho lol), pls fix !!!
 void Game::changeState(std::string state) {
-  GameState* newState;
+  GameState* newState = nullptr;
 
   if (state == "mainMenu") {
+    fprintf(stderr, "gameState is now MainMenu!\n");
     newState = new MainMenu();
   }
-  else if (state == "exploration") {
-    loadSave("savedata-01");
-    newState = new Exploration(currentRoomId);
+  else if (state == "world") {
+    if (currentState == world) {
+      fprintf(stderr, "gameState is already world!!!\n");
+      return;
+    }
+    else {
+      fprintf(stderr, "gameState is now world!\n");
+      // loadSave("savedata-01");
+      delete currentState;
+      currentState = world;
+      return;
+      // newState = new World(currentRoomId);
+
+    }
   }
   else if (state == "combat") {
+    fprintf(stderr, "gameState is now Combat!\n");
     newState = new Combat();
   }
 
-  currentState->exit();
-  delete currentState;
-  currentState = newState;
-  currentState->initialize();
+  if (currentState != newState) {
+    if (currentState != world) {
+      delete currentState;
+    }
+    currentState = newState;
+  }
 }
 
 void Game::renderDialog() {
-  bool isHover = (GetMousePosition().y / gridHeight) >= 12;
+  bool isHover = (GetMousePosition().y / settings.gridHeight) >= 12;
   if (!dialogQueue.empty()) {
     // Draw a dialogue box
     DrawRectangle(
         0,
-        screenHeight - overworldUIHeight,
-        screenWidth,
-        overworldUIHeight,
+        settings.screenHeight - settings.overworldUIHeight,
+        settings.screenWidth,
+        settings.overworldUIHeight,
         DARKGRAY
         );
     if (isHover) {
       Color highlightColor = {255, 255, 255, 75}; // Adjust the alpha value as needed
       DrawRectangle(
           0,
-          screenHeight - overworldUIHeight,
-          screenWidth,
-          overworldUIHeight,
+          settings.screenHeight - settings.overworldUIHeight,
+          settings.screenWidth,
+          settings.overworldUIHeight,
           highlightColor
           );
     }
@@ -95,7 +102,7 @@ void Game::renderDialog() {
     DrawText(
         dialogQueue.front().c_str(),
         10,  // X position of the text
-        screenHeight - overworldUIHeight + 10,  // Y position of the text
+        settings.screenHeight - settings.overworldUIHeight + 10,  // Y position of the text
         20,  // Font size
         WHITE
         );
@@ -224,15 +231,5 @@ void Game::loadTile(const std::string& tileId) {
   }
   // TODO: add more parsing for other tile type here
   else if (true) {
-  }
-}
-
-
-
-void Game::resetGrid() {
-  for (int x = 0; x < screenWidth / gridWidth; x++) {
-    for (int y = 0; y < (screenHeight - overworldUIHeight) / gridHeight; y++) {
-      grid[x][y] = 0; // Set all to 0 (walkable)
-    }
   }
 }

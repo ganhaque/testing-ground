@@ -9,8 +9,8 @@ void MainMenu::render(Game& game) {
   // placeholder, to be replaced
   DrawText(
       "Press Space to Continue or something idk",
-      game.screenWidth / 2 - 50,
-      game.screenHeight / 2, 20,
+      game.settings.screenWidth / 2 - 50,
+      game.settings.screenHeight / 2, 20,
       RAYWHITE
       );
   EndDrawing();
@@ -18,7 +18,7 @@ void MainMenu::render(Game& game) {
 
 void MainMenu::processInput(Game& game) {
   if (IsKeyPressed(KEY_SPACE)) {
-    game.changeState("exploration");
+    game.changeState("world");
     // game.changeState("combat");
   }
 }
@@ -26,11 +26,7 @@ void MainMenu::processInput(Game& game) {
 void MainMenu::update(Game& game) {
 }
 
-void MainMenu::initialize() {
-  return;
-}
-void MainMenu::exit() {
-  return;
+MainMenu::MainMenu() {
 }
 
 MainMenu::~MainMenu() {

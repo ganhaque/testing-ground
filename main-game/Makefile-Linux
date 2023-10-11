@@ -1,5 +1,5 @@
 # List of source file directories
-SRC_DIRS := src src/Exploration src/Combat src/MainMenu
+SRC_DIRS := src src/World src/Combat src/MainMenu
 
 # Use wildcard to find all .cpp files in the specified directories
 SRCS := $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
